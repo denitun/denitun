@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 //chtob zakomitet smog
 @Component
@@ -35,6 +36,8 @@ public class Bot extends TelegramLongPollingBot  {
         this.config = config;
     }
     public void onUpdateReceived(Update update) {
+
+        HashMap<Integer, String> passportsAndNames = new HashMap<>();
 
         update.getUpdateId();
         SendMessage.SendMessageBuilder builder = SendMessage.builder();
@@ -183,25 +186,44 @@ public class Bot extends TelegramLongPollingBot  {
             }
         }
         if (update.getCallbackQuery() != null) {
+            boolean schetchik = true;
 
-            for (int i = 1; i < 8; i++) {
-                if (i == Integer.parseInt(update.getCallbackQuery().getData())) {
-                    builder.text(movies.get(i).toString());
+                for (int i = 1; i < 8; i++) {
 
+                    if (update.getCallbackQuery().getData().equals("Button \"Добавить в избранное\" has been pressed") & schetchik == true) {
+                        builder.text("Готово");
+                        passportsAndNames.put(Integer.parseInt(chatId), movies.get(i).toString());
+                        schetchik = false;
+                        try {
+                            execute(builder.build());
+                        } catch (TelegramApiException e) {
+                            log.debug(e.toString());
+                        }
+                    } else {
 
-                        SendPhoto message = new SendPhoto();
-                        message.setPhoto( new InputFile(new File("\"C:\\Users\\denis\\Desktop\\Солнышко рик и морти\"")));
-                        
-
+                    if (i == Integer.parseInt(update.getCallbackQuery().getData())) {
+                        builder.text(movies.get(i).toString());
+                        builder.replyMarkup(inlineKeyboardMarkup);
+                        SendPhoto.SendPhotoBuilder builderPhoto = SendPhoto.builder();
+                        builderPhoto.photo(new InputFile(new File("C:\\Users\\denis\\Desktop\\Солнышко рик и морти.jpg")));
+                        File f = new File("C:\\Users\\denis\\Desktop\\Солнышко рик и морти.jpg");
+                        builderPhoto.chatId(chatId);
+                        try {
+                            execute(builderPhoto.build());
+                        } catch (TelegramApiException e) {
+                            log.debug(e.toString());
+                        }
+                        try {
+                            execute(builder.build());
+                        } catch (TelegramApiException e) {
+                            log.debug(e.toString());
+                        }
+                    }
                 }
-            }
-            builder.replyMarkup(inlineKeyboardMarkup);
-            try {
-                execute(builder.build());
-            } catch (TelegramApiException e) {
-                log.debug(e.toString());
-            }
 
+
+
+            }
         }
         if (messageText.contains("Другое")) {
             builder.text("Другое");
