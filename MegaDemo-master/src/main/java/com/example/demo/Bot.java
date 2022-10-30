@@ -24,11 +24,14 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 //chtob zakomitet smog
 @Component
 @Slf4j
 public class Bot extends TelegramLongPollingBot  {
-
+    Map<String, List<String>> passportsAndNames = new HashMap<String, List<String>>();
+    List<String> names = new ArrayList<String>();
 
     final
     BotConfig config;
@@ -37,7 +40,7 @@ public class Bot extends TelegramLongPollingBot  {
     }
     public void onUpdateReceived(Update update) {
 
-        HashMap<Integer, String> passportsAndNames = new HashMap<>();
+
 
         update.getUpdateId();
         SendMessage.SendMessageBuilder builder = SendMessage.builder();
@@ -185,19 +188,41 @@ public class Bot extends TelegramLongPollingBot  {
                 log.debug(e.toString());
             }
         }
+        if (messageText.contains("Избранное")) {
+            for (int i = 0; i <= passportsAndNames.get(chatId).size(); i++) {
+                if (passportsAndNames.get(chatId).get(i) != null) {
+                    builder.text(passportsAndNames.get(chatId).get(i).toString());
+                    InlineKeyboardMarkup inlineKeyboardMarkup2 = clava(i);
+
+                    builder.replyMarkup(inlineKeyboardMarkup2);
+                    try {
+                        execute(builder.build());
+                    } catch (TelegramApiException e) {
+                        log.debug(e.toString());
+                    }
+                }
+            }
+        }
         if (update.getCallbackQuery() != null) {
             boolean schetchik = true;
+                for (int i = 0; i < 8; i++) {
+                    if (update.getCallbackQuery().getData().equals("Button \"Добавить в избранное\" has been pressed") ) {
+                        if (schetchik == false){
+                            break;
+                        }
+                        if (messageText.equals(movies.get(i).toString()) ){
+                            builder.text("Готово");
+                            names.add(movies.get(i).toString());
+                            passportsAndNames.put(chatId, names);
 
-                for (int i = 1; i < 8; i++) {
-
-                    if (update.getCallbackQuery().getData().equals("Button \"Добавить в избранное\" has been pressed") & schetchik == true) {
-                        builder.text("Готово");
-                        passportsAndNames.put(Integer.parseInt(chatId), movies.get(i).toString());
-                        schetchik = false;
-                        try {
-                            execute(builder.build());
-                        } catch (TelegramApiException e) {
-                            log.debug(e.toString());
+                            schetchik = false;
+                            try {
+                                execute(builder.build());
+                            } catch (TelegramApiException e) {
+                                log.debug(e.toString());
+                            }
+                        } else {
+                            passportsAndNames.put(chatId, null);
                         }
                     } else {
 
@@ -220,11 +245,9 @@ public class Bot extends TelegramLongPollingBot  {
                         }
                     }
                 }
-
-
-
             }
         }
+
         if (messageText.contains("Другое")) {
             builder.text("Другое");
             builder.replyMarkup(inlineKeyboardMarkup);
