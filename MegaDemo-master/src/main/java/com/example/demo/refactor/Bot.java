@@ -2,6 +2,7 @@ package com.example.demo.refactor;
 
 import com.example.demo.BotConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
@@ -28,25 +29,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class Bot extends TelegramLongPollingBot {
 
-    final BotConfig config;
-    private Map<String, List<Event>> favorites = new ConcurrentHashMap<>();
+    private final BotConfig config;
+    private final Map<String, List<Event>> favorites = new ConcurrentHashMap<>();
 
     public Bot(BotConfig config) {
         this.config = config;
     }
 
     public void onUpdateReceived(Update update) {
-//        update.getUpdateId();
-//        String messageText;
-//        String chatId;
-
-
-//        if (update.getMessage() != null) {
-//            builder = answerToMessage(update);
-//        } else {
-//            builder = answerToCallback(update);
-//        }
-
         List<Event> events = createEvents();
         List<PartialBotApiMethod<?>> answers = update.getMessage() != null ? answerToMessage(update, events) : answerToCallback(update, events);
 
@@ -61,141 +51,7 @@ public class Bot extends TelegramLongPollingBot {
                 log.debug(e.toString());
             }
         }
-
-
-        //\
-        //return new SendMessage().setChatId(chatId).setMessageText("Пример").setReplyMarkup(inlineKeyboardMarkup);
-
-
-//        if (update.getMessage() != null) {
-//            chatId = update.getMessage().getChatId().toString();
-//            builder.chatId(chatId);
-//            messageText = update.getMessage().getText();
-//        } else {
-//            chatId = update.getCallbackQuery().getFrom().getId().toString();
-//            builder.chatId(chatId);
-//            messageText = update.getCallbackQuery().getMessage().getText();
-//        }
-//        if (messageText.contains("/start")) {
-//            builder.text("Привет");
-//            builder.replyMarkup(inlineKeyboardMarkup);
-//            builder.replyMarkup(replyKeyboardMarkup);
-//            try {
-//                execute(builder.build());
-//            } catch (TelegramApiException e) {
-//                log.debug(e.toString());
-//            }
-//        }
-//        if (messageText.contains("Фильмы")) {
-//            for (int i = 1; i < 8; i++) {
-//                builder.text(movies.get(i).toString());
-//                InlineKeyboardMarkup inlineKeyboardMarkup2 = getEventInfoWithCallbacksKB(i);
-//
-//
-//                builder.replyMarkup(inlineKeyboardMarkup2);
-//                try {
-//                    execute(builder.build());
-//                } catch (TelegramApiException e) {
-//                    log.debug(e.toString());
-//                }
-//            }
-//        }
-//        if (messageText.contains("Игры")) {
-//            builder.text("Игры");
-//            builder.replyMarkup(inlineKeyboardMarkup);
-//            try {
-//                execute(builder.build());
-//            } catch (TelegramApiException e) {
-//                log.debug(e.toString());
-//            }
-//        }
-//        if (messageText.contains("Избранное")) {
-//            for (int i = 0; i <= passportsAndNames.get(chatId).size(); i++) {
-//                if (passportsAndNames.get(chatId).get(i) != null) {
-//                    builder.text(passportsAndNames.get(chatId).get(i).toString());
-//                    InlineKeyboardMarkup inlineKeyboardMarkup2 = getEventInfoWithCallbacksKB(i);
-//
-//                    builder.replyMarkup(inlineKeyboardMarkup2);
-//                    try {
-//                        execute(builder.build());
-//                    } catch (TelegramApiException e) {
-//                        log.debug(e.toString());
-//                    }
-//                }
-//            }
-//        }
-//        if (update.getCallbackQuery() != null) {
-//            boolean schetchik = true;
-//            for (int i = 0; i < 8; i++) {
-//                if (update.getCallbackQuery().getData().equals("Button \"Добавить в избранное\" has been pressed")) {
-//                    if (schetchik == false) {
-//                        break;
-//                    }
-//                    if (messageText.equals(movies.get(i).toString())) {
-//                        builder.text("Готово");
-//                        names.add(movies.get(i).toString());
-//                        passportsAndNames.put(chatId, names);
-//
-//                        schetchik = false;
-//                        try {
-//                            execute(builder.build());
-//                        } catch (TelegramApiException e) {
-//                            log.debug(e.toString());
-//                        }
-//                    } else {
-//                        passportsAndNames.put(chatId, null);
-//                    }
-//                } else {
-
-//                    if (i == Integer.parseInt(update.getCallbackQuery().getData())) {
-//                        builder.text(movies.get(i).toString());
-//                        builder.replyMarkup(inlineKeyboardMarkup);
-//                        SendPhoto.SendPhotoBuilder builderPhoto = SendPhoto.builder();
-//                        builderPhoto.photo(new InputFile(new File("C:\\Users\\denis\\Desktop\\Солнышко рик и морти.jpg")));
-//                        File f = new File("C:\\Users\\denis\\Desktop\\Солнышко рик и морти.jpg");
-//                        builderPhoto.chatId(chatId);
-//                        try {
-//                            execute(builderPhoto.build());
-//                        } catch (TelegramApiException e) {
-//                            log.debug(e.toString());
-//                        }
-//                        try {
-//                            execute(builder.build());
-//                        } catch (TelegramApiException e) {
-//                            log.debug(e.toString());
-//                        }
-//                    }
-//                }
-//            }
-//        }
-
-//        if (messageText.contains("Другое")) {
-//            builder.text("Другое");
-//            builder.replyMarkup(inlineKeyboardMarkup);
-//            try {
-//                execute(builder.build());
-//            } catch (TelegramApiException e) {
-//                log.debug(e.toString());
-//            }
-//        }
-//        if (messageText.contains("Всё")) {
-//            builder.text("Всё");
-//            builder.replyMarkup(inlineKeyboardMarkup);
-//            try {
-//                execute(builder.build());
-//            } catch (TelegramApiException e) {
-//                log.debug(e.toString());
-//            }
-//        }
-//        if (messageText.contains("chatId")) {
-//            builder.text("Id Канала : " + chatId);
-//            try {
-//                execute(builder.build());
-//            } catch (TelegramApiException e) {
-//                log.debug(e.toString());
-//            }
     }
-
 
     private List<PartialBotApiMethod<?>> answerToMessage(Update update, List<Event> events) {
         String chatId = update.getMessage().getChatId().toString();
@@ -296,7 +152,7 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     private ReplyKeyboardMarkup getAlwaysOnScreenKB() {
-        // Создаем клавиуатуру
+        // Создаем клавиатуру
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setSelective(true);
         replyKeyboardMarkup.setResizeKeyboard(true);
@@ -415,10 +271,10 @@ public class Bot extends TelegramLongPollingBot {
         return List.of(
                 new Film(1, "Стражи галактики1", LocalDate.of(2023, 5, 23)),
                 new Film(2, "Стражи галактики2", LocalDate.of(2023, 5, 23)),
-                new Film(3, "Стражи галактики3", LocalDate.of(2023, 5, 23)),
+                new Film(3, "Стражи галактики3", LocalDate.of(2022, 11, 8)),
                 new Film(4, "Стражи галактики4", LocalDate.of(2023, 5, 23)),
                 new Film(5, "Стражи галактики5", LocalDate.of(2023, 5, 23)),
-                new Film(6, "Стражи галактики6", LocalDate.of(2023, 5, 23)),
+                new Film(6, "Стражи галактики6", LocalDate.of(2022, 11, 8)),
                 new Film(7, "Стражи галактики7", LocalDate.of(2023, 5, 23)),
                 new Film(8, "Стражи галактики8", LocalDate.of(2023, 5, 23)),
                 new Film(9, "Стражи галактики9", LocalDate.of(2023, 5, 23)),
@@ -431,6 +287,31 @@ public class Bot extends TelegramLongPollingBot {
         );
     }
 
+    @Scheduled(cron = "${notify.cron}")
+    public void notifyUsers() {
+        log.debug("notify");
+        for (Map.Entry<String, List<Event>> entry : favorites.entrySet()) {
+            String chatId = entry.getKey();
+            List<Event> favoriteEvents = entry.getValue();
+            List<String> todayReleasedNames = new ArrayList<>();
+            for (Event favoriteEvent : favoriteEvents) {
+                if (favoriteEvent.getReleaseDate().equals(LocalDate.now())) {
+                    todayReleasedNames.add(favoriteEvent.getName());
+                }
+            }
+            if (!todayReleasedNames.isEmpty()) {
+                SendMessage.SendMessageBuilder builder = SendMessage.builder();
+                builder.chatId(chatId);
+                builder.text(String.join("; ", todayReleasedNames) + " выходит сегодня!");
+                try {
+                    execute(builder.build());
+                } catch (TelegramApiException e) {
+                    log.debug(e.toString());
+                }
+            }
+        }
+    }
+
     public String getBotUsername() {
         return config.getBotUserName();
     }
@@ -438,5 +319,6 @@ public class Bot extends TelegramLongPollingBot {
     public String getBotToken() {
         return config.getToken();
     }
+
 }
 
